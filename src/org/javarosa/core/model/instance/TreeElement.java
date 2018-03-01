@@ -776,10 +776,11 @@ import org.javarosa.xpath.expr.XPathStringLiteral;
                 List<TreeElement> newChildren = incoming.getChildrenWithName(child.getName());
 
                 if (child.getMaskVar(MASK_REPEATABLE)) {
+                    children.remove(child);
                     for (int k = 0; k < newChildren.size(); k++) {
                         TreeElement newChild = child.deepCopy(true);
                         newChild.setMult(k);
-                        this.children.add(i + k + 1, newChild);
+                        this.children.add(i + k, newChild);
                         newChild.populate(newChildren.get(k), f);
                     }
                     i += newChildren.size();
