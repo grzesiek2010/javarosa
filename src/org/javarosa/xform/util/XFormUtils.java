@@ -22,6 +22,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.javarosa.core.io.Std;
@@ -153,6 +154,7 @@ public class XFormUtils {
     public static String unusedAttWarning(Element e, List<String> usedAtts){
         String warning = "Warning: ";
       List<String> ua = getUnusedAttributes(e,usedAtts);
+      ua.removeAll(Arrays.asList("requiredMsg", "saveIncomplete", "rows"));
         warning+=ua.size()+" Unrecognized attributes found in Element ["+e.getName()+"] and will be ignored: ";
         warning+="[";
         for(int i=0;i<ua.size();i++){

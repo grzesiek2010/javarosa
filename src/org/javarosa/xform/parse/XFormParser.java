@@ -180,8 +180,7 @@ public class XFormParser implements IXFormParserFunctions {
         groupLevelHandlers = new HashMap<String, IElementHandler>() {{
             put("input", new IElementHandler() {
                 @Override public void handle(XFormParser p, Element e, Object parent) {
-                    p.parseControl((IFormElement) parent, e, Constants.CONTROL_INPUT,
-                            Arrays.asList("rows") // Prevent warning about unexpected attributes
+                    p.parseControl((IFormElement) parent, e, Constants.CONTROL_INPUT
                     );
                 }
             });
@@ -1708,9 +1707,7 @@ public class XFormParser implements IXFormParserFunctions {
             "constraintMsg",
             "calculate",
             "preload",
-            "preloadParams",
-            "requiredMsg",
-            "saveIncomplete"
+            "preloadParams"
     ));
 
     protected void parseBind(Element element) {
