@@ -33,7 +33,7 @@ import static org.javarosa.xform.parse.FormParserHelper.parse;
 import static org.junit.Assert.assertEquals;
 
 @RunWith(Parameterized.class)
-public class GeoShapeDistanceTest {
+public class GeoDistanceTest {
     @Parameterized.Parameter(value = 0)
     public String geoType;
 
