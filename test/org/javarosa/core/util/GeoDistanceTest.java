@@ -21,6 +21,7 @@ import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.instance.InstanceInitializationFactory;
 import org.javarosa.core.model.instance.TreeElement;
 import org.junit.Test;
+import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
@@ -32,32 +33,49 @@ import static org.javarosa.test.utils.ResourcePathHelper.r;
 import static org.javarosa.xform.parse.FormParserHelper.parse;
 import static org.junit.Assert.assertEquals;
 
-@RunWith(Parameterized.class)
+@RunWith(Enclosed.class)
 public class GeoDistanceTest {
-    @Parameterized.Parameter(value = 0)
-    public String geoType;
 
-    @Parameterized.Parameters(name = "{0}")
-    public static Iterable<Object[]> data() {
-        return Arrays.asList(new Object[][]{
-            {"shape"},
-            {"trace"},
-            {"point"},
-        });
+    @RunWith(Parameterized.class)
+    public static class ParameterizedPart {
+        @Parameterized.Parameter(value = 0)
+        public String geoType;
+
+        @Parameterized.Parameters(name = "{0}")
+        public static Iterable<Object[]> data() {
+            return Arrays.asList(new Object[][]{
+                {"shape"},
+                {"trace"},
+                {"point"},
+            });
+        }
+
+        /**
+         * Shows that the distance function can be used with inputs
+         * <a href="https://opendatakit.github.io/xforms-spec/#fn:distance">as specified</a>.
+         */
+        @Test
+        public void parsingAndDistanceIsCorrectForThreeGeoTypes() throws Exception {
+            FormDef formDef = parse(r("distance.xml")).formDef;
+            formDef.initialize(true, new InstanceInitializationFactory());
+            TreeElement root = formDef.getMainInstance().getRoot();
+            IAnswerData distance = root.getChild(geoType + "-result", DEFAULT_MULTIPLICITY).getValue();
+            double oneDegreeOnEquatorKm = EARTH_EQUATORIAL_CIRCUMFERENCE_METERS / 360;
+            double ninetyDegreesOnEquatorKm = EARTH_EQUATORIAL_CIRCUMFERENCE_METERS / 4;
+            assertEquals(oneDegreeOnEquatorKm + ninetyDegreesOnEquatorKm, (Double) distance.getValue(), 1e-7);
+        }
     }
 
-    /**
-     * Shows that the distance function can be used with inputs
-     * <a href="https://opendatakit.github.io/xforms-spec/#fn:distance">as specified</a>.
-     */
-    @Test
-    public void parsingAndDistanceIsCorrectForThreeGeoTypes() throws Exception {
-        FormDef formDef = parse(r("distance.xml")).formDef;
-        formDef.initialize(true, new InstanceInitializationFactory());
-        TreeElement root = formDef.getMainInstance().getRoot();
-        IAnswerData distance = root.getChild(geoType + "-result", DEFAULT_MULTIPLICITY).getValue();
-        double oneDegreeOnEquatorKm = EARTH_EQUATORIAL_CIRCUMFERENCE_METERS / 360;
-        double ninetyDegreesOnEquatorKm = EARTH_EQUATORIAL_CIRCUMFERENCE_METERS / 4;
-        assertEquals(oneDegreeOnEquatorKm + ninetyDegreesOnEquatorKm, (Double) distance.getValue(), 1e-7);
+    public static class NotParameterizedPart {
+        @Test
+        public void testDistanceWithLessThanTwoPoints() throws Exception {
+            FormDef formDef = parse(r("distance_with_less_than_two_points.xml")).formDef;
+            try {
+                formDef.initialize(true, new InstanceInitializationFactory());
+            } catch (Exception e) {
+                assertEquals("Error evaluating field 'trace-result': The problem was located in calculate expression for /distance/trace-result\n" +
+                    "XPath evaluation: cannot handle function 'distance' requires at least two points.", e.getMessage());
+            }
+        }
     }
 }
