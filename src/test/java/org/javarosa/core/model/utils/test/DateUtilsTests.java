@@ -129,13 +129,13 @@ public class DateUtilsTests {
 
         TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
 
-        Calendar midnight = Calendar.getInstance();
-        midnight.set(Calendar.HOUR_OF_DAY, 0);
-        midnight.set(Calendar.MINUTE, 0);
-        midnight.set(Calendar.SECOND, 0);
-        midnight.set(Calendar.MILLISECOND, 0);
+        Calendar startOfDay = Calendar.getInstance();
+        startOfDay.set(Calendar.HOUR_OF_DAY, 0);
+        startOfDay.set(Calendar.MINUTE, 0);
+        startOfDay.set(Calendar.SECOND, 0);
+        startOfDay.set(Calendar.MILLISECOND, 0);
 
-        long midnightDate = midnight.getTime().getTime();
+        long midnightDate = startOfDay.getTime().getTime();
 
         testTime("10:00", midnightDate + 1000 * 60 * 60 * 10 - getOffset());
         testTime("10:00Z", midnightDate + 1000 * 60 * 60 * 10);
