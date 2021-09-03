@@ -46,6 +46,8 @@ public class ItemsetBinding implements Externalizable, Localizable {
     // Values needed to determine whether the cached list should be expired (not serialized)
     private Map<TreeReference, IAnswerData> cachedTriggerValues;
     private Long cachedRandomizeSeed;
+    private DataInstance formInstance;
+    private List<TreeReference> filteredItemReferences;
 
     /**
      * note that storing both the ref and expr for everything is kind of redundant, but we're forced
@@ -55,8 +57,8 @@ public class ItemsetBinding implements Externalizable, Localizable {
     public TreeReference nodesetRef;   //absolute ref of itemset source nodes
     public IConditionExpr nodesetExpr; //path expression for source nodes; may be relative, may contain predicates
     public TreeReference contextRef;   //context ref for nodesetExpr; ref of the control parent (group/formdef) of itemset question
-       //note: this is only here because its currently impossible to both (a) get a form control's parent, and (b)
-       //convert expressions into refs while preserving predicates. once these are fixed, this field can go away
+    //note: this is only here because its currently impossible to both (a) get a form control's parent, and (b)
+    //convert expressions into refs while preserving predicates. once these are fixed, this field can go away
 
     public TreeReference labelRef;     //absolute ref of label
     public IConditionExpr labelExpr;   //path expression for label; may be relative, no predicates
@@ -92,12 +94,13 @@ public class ItemsetBinding implements Externalizable, Localizable {
         // Return cached list if possible
         if (cachedFilteredChoiceList != null && allTriggerRefsBound && Objects.equals(currentTriggerValues, cachedTriggerValues)
             && Objects.equals(currentRandomizeSeed, cachedRandomizeSeed)) {
+
+            updateQuestionAnswerInModel(formDef, curQRef, getSelectChoicesForAnswer(formDef, curQRef, formInstance, filteredItemReferences));
             return randomize && cachedRandomizeSeed == null ? shuffle(cachedFilteredChoiceList) : cachedFilteredChoiceList;
         }
 
         formDef.getEventNotifier().publishEvent(new Event("Dynamic choices", new EvaluationResult(curQRef, null)));
 
-        DataInstance formInstance;
         if (nodesetRef.getInstanceName() != null) { // the itemset is defined in a secondary instance
             formInstance = formDef.getNonMainInstance(nodesetRef.getInstanceName());
             if (formInstance == null) {
@@ -107,26 +110,20 @@ public class ItemsetBinding implements Externalizable, Localizable {
             formInstance = formDef.getMainInstance();
         }
 
-        List<TreeReference> filteredItemReferences = nodesetExpr.evalNodeset(formDef.getMainInstance(),
+        filteredItemReferences = nodesetExpr.evalNodeset(formDef.getMainInstance(),
             new EvaluationContext(formDef.getEvaluationContext(), contextRef.contextualize(curQRef)));
 
         if (filteredItemReferences == null) {
             throw new XPathException("Could not find references depended on by" + nodesetRef.getInstanceName());
         }
 
-        Map<String, SelectChoice> selectChoicesForAnswer = initializeAnswerMap(formDef, curQRef);
-
         List<SelectChoice> choices = new ArrayList<>();
         for (int i = 0; i < filteredItemReferences.size(); i++) {
             SelectChoice choice = getChoiceForTreeReference(formDef, formInstance, i, filteredItemReferences.get(i));
             choices.add(choice);
-            if (selectChoicesForAnswer != null && selectChoicesForAnswer.containsKey(choice.getValue())) {
-                // Keys with values that don't get set here will have null values and must be filtered out of the answer.
-                selectChoicesForAnswer.put(choice.getValue(), choice);
-            }
         }
 
-        updateQuestionAnswerInModel(formDef, curQRef, selectChoicesForAnswer);
+        updateQuestionAnswerInModel(formDef, curQRef, getSelectChoicesForAnswer(formDef, curQRef, formInstance, filteredItemReferences));
 
         cachedFilteredChoiceList = randomize ? shuffle(choices, currentRandomizeSeed) : choices;
 
@@ -150,6 +147,21 @@ public class ItemsetBinding implements Externalizable, Localizable {
         cachedRandomizeSeed = currentRandomizeSeed;
 
         return cachedFilteredChoiceList;
+    }
+
+    private Map<String, SelectChoice> getSelectChoicesForAnswer(FormDef formDef, TreeReference curQRef, DataInstance formInstance, List<TreeReference> filteredItemReferences) {
+        Map<String, SelectChoice> selectChoicesForAnswer = initializeAnswerMap(formDef, curQRef);
+
+        List<SelectChoice> choices = new ArrayList<>();
+        for (int i = 0; i < filteredItemReferences.size(); i++) {
+            SelectChoice choice = getChoiceForTreeReference(formDef, formInstance, i, filteredItemReferences.get(i));
+            choices.add(choice);
+            if (selectChoicesForAnswer != null && selectChoicesForAnswer.containsKey(choice.getValue())) {
+                // Keys with values that don't get set here will have null values and must be filtered out of the answer.
+                selectChoicesForAnswer.put(choice.getValue(), choice);
+            }
+        }
+        return selectChoicesForAnswer;
     }
 
     /**
