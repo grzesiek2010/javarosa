@@ -25,7 +25,9 @@ import org.jetbrains.annotations.NotNull;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 
 /**
@@ -190,8 +192,19 @@ public class GeoPointData implements IAnswerData, IExprDataType {
         return getDisplayText();
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        GeoPointData that = (GeoPointData) o;
+        return len == that.len && Objects.deepEquals(gp, that.gp);
+    }
 
-  public double getPart(int i) {
+    @Override
+    public int hashCode() {
+        return Objects.hash(Arrays.hashCode(gp), len);
+    }
+
+    public double getPart(int i) {
     if (i < len) {
       return gp[i];
     } else {

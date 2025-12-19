@@ -25,6 +25,8 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * A response to a question requesting an GeoTrace Value.
@@ -45,18 +47,18 @@ public class GeoTraceData implements IAnswerData, IExprDataType {
      *
      */
     public static class GeoTrace {
-        public final ArrayList<double[]> points;
+        public final List<double[]> points;
 
         public GeoTrace() {
             points = new ArrayList<>();
         }
 
-        public GeoTrace(ArrayList<double[]> points) {
+        public GeoTrace(List<double[]> points) {
             this.points = points;
         }
     }
 
-    public final ArrayList<GeoPointData> points = new ArrayList<>();
+    public final List<GeoPointData> points = new ArrayList<>();
 
 
     /**
@@ -204,5 +206,17 @@ public class GeoTraceData implements IAnswerData, IExprDataType {
     @Override
     public String toString() {
         return getDisplayText();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        GeoTraceData data = (GeoTraceData) o;
+        return Objects.equals(points, data.points);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(points);
     }
 }
