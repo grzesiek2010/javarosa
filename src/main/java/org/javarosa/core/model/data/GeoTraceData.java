@@ -26,7 +26,6 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * A response to a question requesting an GeoTrace Value.
@@ -209,14 +208,15 @@ public class GeoTraceData implements IAnswerData, IExprDataType {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) return false;
+    public final boolean equals(Object o) {
+        if (!(o instanceof GeoTraceData)) return false;
+
         GeoTraceData data = (GeoTraceData) o;
-        return Objects.equals(points, data.points);
+        return points.equals(data.points);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(points);
+        return points.hashCode();
     }
 }

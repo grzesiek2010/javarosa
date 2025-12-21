@@ -27,7 +27,6 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 
 
 /**
@@ -193,15 +192,18 @@ public class GeoPointData implements IAnswerData, IExprDataType {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) return false;
+    public final boolean equals(Object o) {
+        if (!(o instanceof GeoPointData)) return false;
+
         GeoPointData that = (GeoPointData) o;
-        return len == that.len && Objects.deepEquals(gp, that.gp);
+        return len == that.len && Arrays.equals(gp, that.gp);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(Arrays.hashCode(gp), len);
+        int result = Arrays.hashCode(gp);
+        result = 31 * result + len;
+        return result;
     }
 
     public double getPart(int i) {

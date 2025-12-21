@@ -26,7 +26,6 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 
 /**
@@ -203,14 +202,15 @@ public class GeoShapeData implements IAnswerData, IExprDataType {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) return false;
-        GeoShapeData data = (GeoShapeData) o;
-        return Objects.equals(points, data.points);
+    public final boolean equals(Object o) {
+        if (!(o instanceof GeoShapeData)) return false;
+
+        GeoShapeData that = (GeoShapeData) o;
+        return points.equals(that.points);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(points);
+        return points.hashCode();
     }
 }
