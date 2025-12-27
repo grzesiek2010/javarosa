@@ -25,6 +25,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -46,18 +47,18 @@ public class GeoShapeData implements IAnswerData, IExprDataType {
      *
      */
     public static class GeoShape {
-        public final ArrayList<double[]> points;
+        public final List<double[]> points;
 
         public GeoShape() {
             points = new ArrayList<>();
         }
 
-        public GeoShape(ArrayList<double[]> points) {
+        public GeoShape(List<double[]> points) {
             this.points = points;
         }
     }
 
-    public final ArrayList<GeoPointData> points = new ArrayList<>();
+    public final List<GeoPointData> points = new ArrayList<>();
 
 
     /**
@@ -198,5 +199,18 @@ public class GeoShapeData implements IAnswerData, IExprDataType {
     @Override
     public String toString() {
         return getDisplayText();
+    }
+
+    @Override
+    public final boolean equals(Object o) {
+        if (!(o instanceof GeoShapeData)) return false;
+
+        GeoShapeData that = (GeoShapeData) o;
+        return points.equals(that.points);
+    }
+
+    @Override
+    public int hashCode() {
+        return points.hashCode();
     }
 }

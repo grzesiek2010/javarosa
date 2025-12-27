@@ -7,7 +7,9 @@ import org.junit.Test;
 
 import java.io.IOException;
 
+import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.javarosa.test.BindBuilderXFormsElement.bind;
 import static org.javarosa.test.XFormsElement.body;
@@ -67,5 +69,27 @@ public class GeoPointDataTests {
 
         scenario.answer("/data/q1", "1.234 5.678 0 0");
         assertThat(scenario.getAnswerNode("/data/note").isRelevant(), is(true));
+    }
+
+    @Test
+    public void equals_comparesPoints() {
+        GeoPointData data = new GeoPointData(new double[]{0.0, 0.0, 0.0, 0.0});
+        assertThat(data, equalTo(data));
+        assertThat(data, equalTo(new GeoPointData(new double[]{0.0, 0.0, 0.0, 0.0})));
+        assertThat(data, not(equalTo(new GeoPointData(new double[]{1.0, 1.0, 1.0, 1.0}))));
+    }
+
+    @Test
+    public void hashCode_isTheSameForTheSamePoints() {
+        GeoPointData data = new GeoPointData(new double[]{0.0, 0.0, 0.0, 0.0});
+        assertThat(data.hashCode(), equalTo(data.hashCode()));
+        assertThat(
+            data.hashCode(),
+            equalTo(new GeoPointData(new double[]{0.0, 0.0, 0.0, 0.0}).hashCode())
+        );
+        assertThat(
+            data,
+            not(equalTo(new GeoPointData(new double[]{1.0, 1.0, 1.0, 1.0}).hashCode()))
+        );
     }
 }
