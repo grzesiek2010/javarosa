@@ -13,7 +13,7 @@ import java.util.Set;
 public class RangeParser {
     static void populateQuestionWithRangeAttributes(RangeQuestion question, Element e) {
         final Set<String> rangeAttributeNames = Collections.unmodifiableSet(
-                new HashSet<>(Arrays.asList("start", "end", "step")));
+                new HashSet<>(Arrays.asList("start", "end", "step", "tick-interval", "display-default")));
 
         for (int i = 0; i < e.getAttributeCount(); i++) {
             final String attrName = e.getAttributeName(i);
@@ -37,6 +37,12 @@ public class RangeParser {
                         break;
                     case "step":
                         question.setRangeStep(attrDecimalValue);
+                        break;
+                    case "tick-interval":
+                        question.setTickInterval(attrDecimalValue);
+                        break;
+                    case "display-default":
+                        question.setDisplayDefault(attrDecimalValue);
                         break;
                 }
             }
